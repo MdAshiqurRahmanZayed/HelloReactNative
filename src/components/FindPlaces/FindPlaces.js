@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import PlaceList from './components/PlaceList/PlaceList';
-import InputPlace from './components/InputPlace/InputPlace';
-import PlaceDetail from './components/PlaceDetail/PlaceDetail';
+import PlaceList from '../PlaceList/PlaceList';
+import PlaceDetail from '../PlaceDetail/PlaceDetail';
 import { connect } from 'react-redux';
-import { addPlace, deletePlace } from './redux/actionCreators';
+import { deletePlace,deletePlaceFirebase,loadPlaces } from '../../redux/actionCreators';
+
 
 const mapStateToProps = state => {
     return {
@@ -14,14 +14,17 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        addPlace: place => dispatch(addPlace(place)),
-        deletePlace: key => dispatch(deletePlace(key))
+        deletePlace: key => dispatch(deletePlace(key)),
+        loadPlaces:()=>dispatch(loadPlaces()),
+        deletePlaceFirebase: (key) => dispatch(deletePlaceFirebase(key)),
     }
 }
 
 
-const MainComponent = props => {
-    const [inputValue, setInputValue] = useState("");
+const FindPlaces = props => {
+    useEffect(()=>{
+        props.loadPlaces();
+    })
     const [selectedPlace, setSelectedPlace] = useState(null);
 
     const handleSelectedPlace = key => {
@@ -37,6 +40,7 @@ const MainComponent = props => {
 
     const handleDeleteItem = key => {
         props.deletePlace(key);
+        props.deletePlaceFirebase(key);
         setSelectedPlace(null);
     }
 
@@ -50,12 +54,6 @@ const MainComponent = props => {
     return (
         <View style={styles.container}>
             {placeDetail}
-            <InputPlace
-                inputValue={inputValue}
-                setInputValue={setInputValue}
-                placeList={props.placeList}
-                addPlace={props.addPlace}
-            />
             <PlaceList placeList={props.placeList} handleSelectedPlace={handleSelectedPlace} />
         </View>
     );
@@ -73,4 +71,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(MainComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(FindPlaces);
